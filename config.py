@@ -1,8 +1,19 @@
 # config.py
-num_words = 4
-min_word_length = 4
-max_word_length = 5
-start_case = "lower"  # Start with 'lower', next word will be 'upper', and so on
+
+# Number of words in each password
+num_words = 3
+
+# Symbol used for padding at the beginning and end of the password
 padding_symbol = "--"
+
+# Separator used between words in the password
 separator = "."
+
+# Number of passwords to generate
 num_passwords = 5
+
+# Case of the first word ('lower' or 'upper') - subsequent words will alternate
+start_case = "lower"
+
+# Desired length for each word in the password
+word_length = 5
