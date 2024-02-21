@@ -10,7 +10,7 @@ padding_symbol = "--"
 separator = "."
 
 # Number of passwords to generate
-num_passwords = 5
+num_passwords = 10
 
 # Case of the first word ('lower' or 'upper') - subsequent words will alternate
 start_case = "lower"

@@ -1,5 +1,14 @@
 import json
 import random
+import config
+import time
+import logging
+
+
+logging.basicConfig(level=logging.DEBUG)
+
+# format logging: [L]evel - [D]ate and Time - [M]essage
+logging.basicConfig(format='[%(levelname)s] - [%(asctime)s] - %(message)s')
 
 def query_yes_no(question, default="yes"):
     """Ask a yes/no question via input() and return the answer."""
@@ -11,6 +20,7 @@ def query_yes_no(question, default="yes"):
     elif default == "no":
         prompt = " [y/N] "
     else:
+        logging.error(f"invalid default answer: '{default}'")
         raise ValueError("invalid default answer: '%s'" % default)
 
     while True:
@@ -25,8 +35,7 @@ def query_yes_no(question, default="yes"):
 def load_config():
     """Load configuration from config.py."""
     try:
-        import config
-        print("Configuration loaded from config.py.")
+        logging.info("Configuration loaded from config.py.")
         return {
             'num_words': config.num_words,
             'padding_symbol': config.padding_symbol,
@@ -36,7 +45,7 @@ def load_config():
             'word_length': config.word_length
         }
     except ImportError:
-        print("config.py not found.")
+        logging.error("config.py not found.")
         return None
 
 def input_config():
@@ -70,17 +79,18 @@ def select_word(words_by_length, desired_length, is_upper):
 
 def generate_password(words_by_length, config):
     """Generates passwords based on the configuration, using a uniform word length."""
-    passwords = []
-    for _ in range(config['num_passwords']):
-        words = []
-        is_upper = config['start_case'] == 'upper'
-        for _ in range(config['num_words']):
-            words.append(select_word(words_by_length, config['word_length'], is_upper))
-            is_upper = not is_upper
-        passwords.append(config['padding_symbol'] + config['separator'].join(words) + config['padding_symbol'])
-    return passwords
+    padding_symbol = config['padding_symbol']
+    separator = config['separator']
+    return [
+        padding_symbol + separator.join([
+            select_word(words_by_length, config['word_length'], is_upper)
+            for is_upper in [config['start_case'] == 'upper'] * config['num_words']
+        ]) + padding_symbol
+        for _ in range(config['num_passwords'])
+    ]
 
 if __name__ == "__main__":
+    logging.info("Password Generator started")
     use_config = query_yes_no("Do you want to load settings from config.py?")
     if use_config:
         config = load_config()
@@ -88,9 +98,24 @@ if __name__ == "__main__":
             config = input_config()
     else:
         config = input_config()
+    
+    logging.info(f"Configuration: {config}")
 
     words_by_length = load_words_and_organize_by_length()
+    
+    start_time = time.time()  # Start time
+
     passwords = generate_password(words_by_length, config)
-    print("\nGenerated Passwords:")
-    for password in passwords:
-        print(password)
+
+    end_time = time.time()  # End time
+    elapsed_time = end_time - start_time
+    average_time_per_password = elapsed_time / config['num_passwords']
+
+    logging.info("Generated Passwords")
+    
+    with open('passwords.txt', 'w') as file:
+        for password in passwords:
+            file.write(password + '\n')
+    logging.info("Passwords saved to passwords.txt")    
+    logging.info(f"Elapsed Time: {elapsed_time} seconds")
+    logging.info(f"Average Time per Generated Password: {average_time_per_password} seconds")
