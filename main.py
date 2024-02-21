@@ -33,7 +33,7 @@ def load_config():
             'separator': config.separator,
             'num_passwords': config.num_passwords,
             'start_case': config.start_case,
-            'word_length': config.word_length  # Ensure word_length is defined in config.py
+            'word_length': config.word_length
         }
     except ImportError:
         print("config.py not found.")
@@ -48,7 +48,7 @@ def input_config():
         'separator': input("Separator: "),
         'num_passwords': int(input("Number of passwords: ")),
         'start_case': input("Start case ('lower' or 'upper'): "),
-        'word_length': int(input("Word length: "))  # Ask for word length
+        'word_length': int(input("Word length: "))
     }
 
 def load_words_and_organize_by_length():
@@ -75,9 +75,8 @@ def generate_password(words_by_length, config):
         words = []
         is_upper = config['start_case'] == 'upper'
         for _ in range(config['num_words']):
-            # Use the specified word_length for all words
             words.append(select_word(words_by_length, config['word_length'], is_upper))
-            is_upper = not is_upper  # Alternate case
+            is_upper = not is_upper
         passwords.append(config['padding_symbol'] + config['separator'].join(words) + config['padding_symbol'])
     return passwords
 
@@ -85,7 +84,7 @@ if __name__ == "__main__":
     use_config = query_yes_no("Do you want to load settings from config.py?")
     if use_config:
         config = load_config()
-        if not config:  # Fallback to manual config if config.py couldn't be loaded
+        if not config:
             config = input_config()
     else:
         config = input_config()
